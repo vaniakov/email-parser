@@ -13,7 +13,7 @@ class EmailParser:
             r"\bfrom:?(\s.*\s)?\<?([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)\>?\b",
             flags=re.IGNORECASE)
         self.to_regex = re.compile(
-            r"\bto:?\s?([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)\b",
+            r"\b(to:?\s?(?:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(?:\,\s*)?)+)\b",
             flags=re.IGNORECASE)
         self.email_regex = re.compile(
             r"\b[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+\b",
@@ -40,13 +40,13 @@ class EmailParser:
 
     def _parse_to(self):
         #pdb.set_trace()
-
         'parse string in form: "To: email@address"'
-        to = re.findall(self.to_regex, self._source)
-        if len(to) == 0:
+        to = ' '.join(re.findall(self.to_regex, self._source))
+        to_emails = re.findall(self.email_regex, to)
+        if len(to_emails) == 0:
             self.warnings.append(
                 'There are no "To:" declaration! or email is not valid')
-        return to
+        return to_emails
 
     def _parse_emails(self):
         'parse emails in the file that matches regex'
